@@ -50,41 +50,49 @@ You will run through this code with a group (during live lab), or individually (
 
 There is a more complex code base in the class textbook which forms the basis for your homework assignment - a cost/benefit problem involving subscriptions and mail vouchers - a more complex balance sheet. The code in this markdown is only lightly annotated. The textbook has a full annotation of the code and describes the details of logistic regression, goodness of fit metrics and more. This workshop mostly just deals with the process and interpretation.
 
-# Set Up
+# Set Up & Clean Up
 
 Install libraries and load the data set `advertising`.
 
 These data come from a [Kaggle ML example data set](%22https://www.kaggle.com/faressayah/logistic-regression-tutorial-predict-ad-click?select=advertising.csv%22) and are somewhat edited and contain added noise.
 
-```{r load_packages, warning = FALSE}
+```{r load_packages, warning = FALSE, include=FALSE}
 options(scipen=10000000)
 
 library(tidyverse)
 library(kableExtra)
 library(caret)
 library(knitr) 
-install.packages("pscl")
 library(pscl)
-install.packages("plotROC")
 library(plotROC)
-install.packages("pROC")
 library(pROC)
-install.packages("lubridate")
 library(lubridate)
-install.packages("stargazer")
 library(stargazer)
 ```
 
-```{r load_data, cache = TRUE}
+```{r load_data, cache = TRUE, include=FALSE}
 palette5 <- c("#981FAC","#CB0F8B","#FF006A","#FE4C35","#FE9900")
 palette4 <- c("#981FAC","#FF006A","#FE4C35","#FE9900")
 palette2 <- c("#981FAC","#FF006A")
 
 
-H_subsidy <- read.csv("https://github.com/urbanSpatial/Public-Policy-Analytics-Landing/raw/master/DATA/Chapter6/housingSubsidy.csv")
+H_subsidy <- read.csv("https://github.com/urbanSpatial/Public-Policy-Analytics-Landing/raw/master/DATA/Chapter6/housingSubsidy.csv") %>%
+  
 ```
 
-# Data Exploration
+We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the **"tally"** function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overhwelming present in our, in case skew our results and effect the efficacy of our model. **To remedy this, we will create a new pdays column ("days") that omits 999 values.** 
+
+```{r clean_up, warning = FALSE}
+#Getting a general pdays count
+days_tally <- H_subsidy %>%
+  group_by(pdays) %>%
+  tally() 
+
+kable(days_tally, caption = "Count of 'pdays' Values") %>% 
+  kable_classic_2("striped", "hover", "condensed", position = "float_right", full_width = F)
+```
+
+# Data Visualization
 
 Use the `glimpse` command to check out your data set.
 
@@ -95,6 +103,8 @@ Make some plots of our variables - both continuous and categorical. Examine thes
 **What are some of the average characteristics of people who click on this ad?**
 
 **What are some of the ways in which clickers and non-clickers are different?**
+
+
 
 ```{r exploratory_continuous}
 H_subsidy %>%
@@ -150,8 +160,10 @@ H_subsidy %>%
              subtitle = "Categorical features") +
         theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+# Variable Reclassifcation 
+
 # Identifying Strongest Variables 
-We will conduct a series of *stepwise regressions* in order to identify which variables are best for our model. Stepwise regression is a predictive procedure wherein predictors (variables) are repeatedly added/removed in order to find the collection of variables in a dataset that result in the best performing model, (a model that lowers prediction error).
+We will conduct a series of _*stepwise regressions*_ in order to identify which variables are best for our model. Stepwise regression is a predictive procedure wherein predictors (variables) are repeatedly added/removed in order to find the collection of variables in a dataset that result in the best performing model, (a model that lowers prediction error).
 
 # Variable Transformations
 
