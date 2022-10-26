@@ -10,6 +10,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+rm(list=ls())
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
 
@@ -62,10 +63,15 @@ library(tidyverse)
 library(kableExtra)
 library(caret)
 library(knitr) 
+install.packages("pscl")
 library(pscl)
+install.packages("plotROC")
 library(plotROC)
+install.packages("pROC")
 library(pROC)
+install.packages("lubridate")
 library(lubridate)
+install.packages("stargazer")
 library(stargazer)
 ```
 
@@ -144,7 +150,8 @@ H_subsidy %>%
              subtitle = "Categorical features") +
         theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-
+# Identifying Strongest Variables 
+We will conduct a series of *stepwise regressions* in order to identify which variables are best for our model. Stepwise regression is a predictive procedure wherein predictors (variables) are repeatedly added/removed in order to find the collection of variables in a dataset that result in the best performing model, (a model that lowers prediction error).
 
 # Variable Transformations
 
@@ -174,7 +181,7 @@ I also create a `userTimeFrame` variable to see if the time of day the user is v
          job == "services"  ~ "services",
          job == "services"  ~ "services",
          job == "services"  ~ "services",
-         job == "services"  ~ "services"))
+         job == "services"  ~ "services")
 
 ```
 
