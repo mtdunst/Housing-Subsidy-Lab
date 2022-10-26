@@ -253,9 +253,9 @@ Goodness of fit metrics were calculated for each model and are displayed below. 
 
 ``` {r fit metrics}
 results <- results %>% 
-        rename("Model 1" = "pR2.H_subsidyModel_1.",
-               "Model 2." = "pR2.H_subsidyModel_2.",
-               "Model 3" = "pR2.H_subsidyModel_3.")
+        rename("Model 1 - initial" = "pR2.H_subsidyModel_1.",
+               "Model 2 - high coeff." = "pR2.H_subsidyModel_2.",
+               "Model 3 - low p-value" = "pR2.H_subsidyModel_3.")
 
 results %>%
   kbl(caption = "Goodness of Fit Metrics by Model") %>%
