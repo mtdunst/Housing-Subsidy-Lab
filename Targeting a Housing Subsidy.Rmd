@@ -96,10 +96,18 @@ days_tally <- H_subsidy %>%
 kable(days_tally, caption = "Count of 'pdays' Values") %>% 
   kable_classic_2("striped", "hover", "condensed", position = "float_right", full_width = F)
 
-#Creating a new "days" column 
+#Creating the "days" column 
 H_subsidy$days <- ifelse(test = H_subsidy$pdays < 999,  # Keep original values
                        yes = H_subsidy$pdays,
                        no = NA)
+# Creating the "weeks" column 
+H_subsidy <-
+  H_subsidy %>%
+  mutate(weeks = case_when(
+    pdays <= 6 ~ "less than 1 week",
+    pdays <= 13 ~ "less than 2 weeks",
+    pdays >= 14 && (pdays < 999) ~ "2 or more weeks",
+     pdays == 999 ~ "never contacted"))
 ```
 
 # Data Visualization
