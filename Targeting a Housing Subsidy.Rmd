@@ -76,11 +76,11 @@ palette4 <- c("#981FAC","#FF006A","#FE4C35","#FE9900")
 palette2 <- c("#981FAC","#FF006A")
 
 
-H_subsidy <- read.csv("https://github.com/urbanSpatial/Public-Policy-Analytics-Landing/raw/master/DATA/Chapter6/housingSubsidy.csv") %>%
+H_subsidy <- read.csv("https://github.com/urbanSpatial/Public-Policy-Analytics-Landing/raw/master/DATA/Chapter6/housingSubsidy.csv")
   
 ```
 
-We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the **"tally"** function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overhwelming present in our, in case skew our results and effect the efficacy of our model. **To remedy this, we will create a new pdays column ("days") that omits 999 values.** 
+We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the **"tally"** function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overhwelmingly present in our data, in may skew our results and compromise the efficacy of the variable. **To remedy this, we will create a new pdays column ("days") that omits 999 values.** 
 
 ```{r clean_up, warning = FALSE}
 #Getting a general pdays count
@@ -88,8 +88,14 @@ days_tally <- H_subsidy %>%
   group_by(pdays) %>%
   tally() 
 
+#Viewing count
 kable(days_tally, caption = "Count of 'pdays' Values") %>% 
   kable_classic_2("striped", "hover", "condensed", position = "float_right", full_width = F)
+
+#Creating a new "days" column 
+H_subsidy$days <- ifelse(test = H_subsidy$pdays < 999,  # Keep original values
+                       yes = H_subsidy$pdays,
+                       no = NA)
 ```
 
 # Data Visualization
