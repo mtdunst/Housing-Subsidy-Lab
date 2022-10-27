@@ -52,10 +52,6 @@ There is a more complex code base in the class textbook which forms the basis fo
 
 # Set Up & Clean Up
 
-Install libraries and load the data set `advertising`.
-
-These data come from a [Kaggle ML example data set](%22https://www.kaggle.com/faressayah/logistic-regression-tutorial-predict-ad-click?select=advertising.csv%22) and are somewhat edited and contain added noise.
-
 ```{r load_packages, warning = FALSE, include=FALSE}
 options(scipen=10000000)
 
@@ -80,7 +76,7 @@ H_subsidy <- read.csv("https://github.com/urbanSpatial/Public-Policy-Analytics-L
   
 ```
 
-We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the **"tally"** function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overwhelmingly present in our data, it may skew our results and compromise the efficacy of the variable. **To remedy this, we will create 2 new pdays columns:**
+We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the *"tally"* function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overwhelmingly present in our data, it may skew our results and compromise the efficacy of the variable. **To remedy this, we will create 2 new pdays columns:**
 
 **1. "days" a duplicate of the 'pdays' column where 999 values are omitted**
 **2. "week" a duplicate of the 'pdays' column where values are grouped into _"less than 1 week", "less than 2 weeks" "2 or more weeks", and "never contacted."_**
