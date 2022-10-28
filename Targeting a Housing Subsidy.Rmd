@@ -161,7 +161,7 @@ H_subsidy %>%
 ```
 ```{r exploratory_binary, message = FALSE, warning = FALSE}
 H_subsidy %>%
-    dplyr::select(y, contact, campaign, poutcome) %>%
+    dplyr::select(y, contact, campaign, poutcome, weeks) %>%
     gather(Variable, value, -y) %>%
     count(Variable, value, y) %>%
       ggplot(., aes(value, n, fill = y)) +   
@@ -186,27 +186,12 @@ I also create a `userTimeFrame` variable to see if the time of day the user is v
 
 ```{r country_variables, cache = TRUE}
 
-#H_subsidy <- 
+H_subsidy <- 
   H_subsidy %>% 
-  group_by(job) %>% 
-  #summarize(totClicks = sum(clickNumeric), 
-    #        n = n(), 
-     #       nationalClickAvg = 100*(totClicks/n)) %>%
-  #dplyr::select(-n, -totClicks) %>%
-  #right_join(H_subsidy, .) %>%
-  mutate(job_cat = job == "admin."  ~ "admin.",
-                                   job == "blue-collar"  ~ "blue-collar",
-                                   job == "entrepreneur"  ~ "entrepreneur",
-                                   job == "housemaid"  ~ "housemaid",
-         job == "management"  ~ "management",
-         job == "retired"  ~ "retired",
-         job == "self-employed"  ~ "self-employed",
-         job == "services"  ~ "services",
-         job == "student"  ~ "student",
-         job == "services"  ~ "services",
-         job == "services"  ~ "services",
-         job == "services"  ~ "services",
-         job == "services"  ~ "services")
+  mutate(marital_group = case_when(marital == "divorced"  ~ "divorced",
+                                   marital == "married"  ~ "married",
+                                   marital == "single"  ~ "single",
+                                   marital == "unknown"  ~ "single"))
 
 ```
 
@@ -214,11 +199,11 @@ I also create a `userTimeFrame` variable to see if the time of day the user is v
 
 A logistic regression model predicts a binary outcome - a `1` or a `0` - a `Click` or a `No Click` and associates a coefficient that describes the change in the probability of the outcome given some change in the independent variable. As I mentioned earlier, for a more detailed discussion of logistic regression, consult the text book.
 
-We partition our data into a 50/50 training and test set (`p = 0.50`). We call these sets `advertisingTrain` and `advertisingTest`.
+We partition our data into a 60/35 training and test set (`p = 0.65`). We call these sets `advertisingTrain` and `advertisingTest`.
 
 ```{r create_partition}
 set.seed(3456)
-trainIndex <- createDataPartition(H_subsidy$y, p = .65,
+trainIndex <- createDataPartition(H_subsidy$y_numeric, p = .65,
                                   list = FALSE,
                                   times = 1)
 H_subsidyTrain <- H_subsidy[ trainIndex,]
@@ -289,7 +274,7 @@ results %>%
 
 # Make Predictions
 
-We create a dataframe of predictions for the 500 observations in our test set, called `testProbs`.
+We create a data frame of predictions for the 500 observations in our test set, called `testProbs`.
 
 These predictions are the estimated probabilities of clicking for these out-of-sample subjects. We can compare them to the observed outcome.
 
@@ -297,8 +282,8 @@ Run the code below and explore using `glimpse(testProbs)` to see what these pred
 
 ```{r testProbs}
 
-testProbs <- data.frame(Outcome = as.factor(advertisingTest$clickNumeric),
-                        Probs = predict(advertisingModel, advertisingTest, type= "response"))
+testProbs <- data.frame(Outcome = as.factor(H_subsidyTest$y_Numeric),
+                        Probs = predict(H_subsidyModel_1, H_subsidyTest, type= "response"))
 ```
 
 ## Discussion 3
