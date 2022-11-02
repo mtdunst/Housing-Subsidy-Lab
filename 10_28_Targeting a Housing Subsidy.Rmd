@@ -121,7 +121,7 @@ Make some plots of our variables - both continuous and categorical. Examine thes
 
 ```{r exploratory_continuous}
 H_subsidy %>%
-  dplyr::select(y,unemploy_rate, cons.price.idx, cons.conf.idx, inflation_rate, spent_on_repairs) %>%
+  dplyr::select(y,unemploy_rate, cons.price.idx, cons.conf.idx, inflation_rate, spent_on_repairs,days) %>%
   gather(Variable, value, -y) %>%
     ggplot(aes(y, value, fill=y)) + 
       geom_bar(position = "dodge", stat = "summary", fun = "mean") + 
@@ -280,7 +280,7 @@ These predictions are the estimated probabilities of clicking for these out-of-s
 
 Run the code below and explore using `glimpse(testProbs)` to see what these predictions look like.
 
-```{r testProbs}
+```{r testProbs} 
 
 testProbs <- data.frame(Outcome = as.factor(H_subsidyTest$y_Numeric),
                         Probs = predict(H_subsidyModel_1, H_subsidyTest, type= "response"))
