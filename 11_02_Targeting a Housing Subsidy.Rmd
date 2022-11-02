@@ -54,7 +54,7 @@ There is a more complex code base in the class textbook which forms the basis fo
 
 ```{r load_packages, warning = FALSE, include=FALSE}
 options(scipen=10000000)
-
+rm(list = ls())
 library(tidyverse)
 library(kableExtra)
 library(caret)
@@ -121,7 +121,7 @@ Make some plots of our variables - both continuous and categorical. Examine thes
 
 ```{r exploratory_continuous}
 H_subsidy %>%
-  dplyr::select(y,unemploy_rate, cons.price.idx, cons.conf.idx, inflation_rate, spent_on_repairs) %>%
+  dplyr::select(y,unemploy_rate, cons.price.idx, cons.conf.idx, inflation_rate, spent_on_repairs,days) %>%
   gather(Variable, value, -y) %>%
     ggplot(aes(y, value, fill=y)) + 
       geom_bar(position = "dodge", stat = "summary", fun = "mean") + 
