@@ -103,6 +103,14 @@ H_subsidy <-
     pdays <= 13 ~ "less than 2 weeks",
     pdays >= 14 && (pdays < 999) ~ "2 or more weeks",
      pdays == 999 ~ "never contacted"))
+
+# Converting "unknown" marital status to "single"
+H_subsidy <- 
+  H_subsidy %>% 
+  mutate(marital= case_when(marital == "divorced"  ~ "divorced",
+                                   marital == "married"  ~ "married",
+                                   marital == "single"  ~ "single",
+                                   marital == "unknown"  ~ "single"))
 ```
 
 # Data Visualization
@@ -178,22 +186,51 @@ H_subsidy %>%
 # Identifying Strongest Variables 
 We will conduct a series of _*stepwise regressions*_ in order to identify which variables are best for our model. Stepwise regression is a predictive procedure wherein predictors (variables) are repeatedly added/removed in order to find the collection of variables in a dataset that result in the best performing model, (a model that lowers prediction error).
 
+## Stepwise Regression Prep: Creating Temporary Numerical Vars (Engineered Regression)
+Some of our variables our text-based (as opposed to numbers). Regression models will not recognize this, so we will convert text-based variables into #s. We'll be converting many variables, click *"show"* to view our work!
+
+```{r}
+
+# Jobs
+H_subsidy$underemploy <- ifelse(H_subsidy$job == "retired"| H_subsidy$job =="unemployed"| H_subsidy$job =="unknown"|H_subsidy$job =="student", 1, 0)
+H_subsidy$bluecollar <- ifelse(H_subsidy$job == "blue-collar"| H_subsidy$job == "technician"| H_subsidy$job =="housemaid"|H_subsidy$job =="services", 1, 0)
+H_subsidy$whitecollar <- ifelse(H_subsidy$job == "admin."| H_subsidy$job =="entrepreneur"| H_subsidy$job =="management"|H_subsidy$job =="self-employed", 1, 0)
+
+#Schooling
+H_subsidy$lessthanHS <- ifelse(H_subsidy$education == "basic.4y"| H_subsidy$education =="basic.6y"| H_subsidy$education =="basic.9y"|H_subsidy$education =="illiterate" |H_subsidy$education =="unknown", 1, 0)
+H_subsidy$highschool <- ifelse(H_subsidy$education == "high.school", 1, 0)
+H_subsidy$college <- ifelse(H_subsidy$education == "university.degree", 1, 0)
+H_subsidy$professional <- ifelse(H_subsidy$education == "professional.course", 1, 0)
+
+#Marital
+H_subsidy$single <- ifelse(H_subsidy$marital == "single"| H_subsidy$marital =="unknown", 1, 0)
+H_subsidy$divorced <- ifelse(H_subsidy$marital == "divorced", 1, 0)
+H_subsidy$married <- ifelse(H_subsidy$marital == "married", 1, 0)
+
+#Tax Lien
+H_subsidy$nolien <- ifelse(H_subsidy$taxLien == "no" | H_subsidy$taxLien == "unknown", 1, 0)
+H_subsidy$haslien <- ifelse(H_subsidy$taxLien == "yes", 1, 0)
+
+#Mortgage
+H_subsidy$mortgage <- ifelse(H_subsidy$mortgage == "yes", 1, 0)
+
+
+```
+
+```{r stepwise}
+#stepping forward
+fullmod<-lm(y_numeric~ age + job_num + marital + education + taxLien + mortgage + taxbill_in_phl + contact + month + day_of_week + campaign + days + unemploy_rate + cons.price.idx + cons.conf.idx + inflation_rate + spent_on_repairs + weeks,data = H_subsidy)
+intonly<-lm(y_numeric ~1, data = H_subsidy) 
+step(intonly, scope=list(lower=intonly, upper=fullmod), direction="forward")
+
+```
+
+
 # Variable Transformations
 
 We have tons of countries in our data set. Most have only a handful of observations. I create a "click average" for each country to use a continuous instead of categorical variable.
 
 I also create a `userTimeFrame` variable to see if the time of day the user is viewing the ad has some kind of effect.
-
-```{r country_variables, cache = TRUE}
-
-H_subsidy <- 
-  H_subsidy %>% 
-  mutate(marital_group = case_when(marital == "divorced"  ~ "divorced",
-                                   marital == "married"  ~ "married",
-                                   marital == "single"  ~ "single",
-                                   marital == "unknown"  ~ "single"))
-
-```
 
 # Create A Logistic Regression Model
 
