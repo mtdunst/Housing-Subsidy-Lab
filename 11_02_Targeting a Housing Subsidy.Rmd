@@ -155,7 +155,7 @@ H_subsidy %>%
 
 ```{r exploratory_binary, message = FALSE, warning = FALSE}
 H_subsidy %>%
-    dplyr::select(y, job, marital, education, taxLien, mortgage, taxbill_in_phl) %>%
+    dplyr::select(y, job, marital, education, taxLien, mortgage, taxbill_in_phl, day_of_week, month) %>% 
     gather(Variable, value, -y) %>%
     count(Variable, value, y) %>%
       ggplot(., aes(value, n, fill = y)) +   
@@ -222,6 +222,11 @@ H_subsidy$notaxbill <- ifelse(H_subsidy$taxbill_in_phl == "no", 1, 0)
 # Method of Contact
 H_subsidy$cellular <- ifelse(H_subsidy$contact == "cellular", 1, 0)
 H_subsidy$landline <- ifelse(H_subsidy$contact == "telephone", 1, 0)
+
+#Month
+H_subsidy$spring <- ifelse(H_subsidy$month == "mar"| H_subsidy$month == "apr"| H_subsidy$month == "may", 1, 0)
+H_subsidy$spring <- ifelse(H_subsidy$month == "mar"| H_subsidy$month == "apr"| H_subsidy$month == "may", 1, 0)
+
 ```
 
 ```{r stepwise}
