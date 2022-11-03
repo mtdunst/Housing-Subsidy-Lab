@@ -187,7 +187,7 @@ H_subsidy %>%
 We will conduct a series of _*stepwise regressions*_ in order to identify which variables are best for our model. Stepwise regression is a predictive procedure wherein predictors (variables) are repeatedly added/removed in order to find the collection of variables in a dataset that result in the best performing model, (a model that lowers prediction error).
 
 ## Stepwise Regression Prep: Creating Temporary Numerical Vars (Engineered Regression)
-Some of our variables our text-based (as opposed to numbers). Regression models will not recognize this, so we will convert text-based variables into #s. We'll be converting many variables, click *"show"* to view our work!
+Some of our variables our text-based (as opposed to numbers). Regression models will not recognize this, so we will convert text-based variables into #s. We'll be converting **many** variables, click *"show"* to view our work!
 
 ```{r}
 
@@ -213,8 +213,15 @@ H_subsidy$haslien <- ifelse(H_subsidy$taxLien == "yes", 1, 0)
 
 #Mortgage
 H_subsidy$mortgage <- ifelse(H_subsidy$mortgage == "yes", 1, 0)
+H_subsidy$nomortgage <- ifelse(H_subsidy$taxLien == "no" | H_subsidy$taxLien == "unknown", 1, 0)
 
+#Philly Tax Bill
+H_subsidy$taxbillyes <- ifelse(H_subsidy$taxbill_in_phl == "yes", 1, 0)
+H_subsidy$notaxbill <- ifelse(H_subsidy$taxbill_in_phl == "no", 1, 0)
 
+# Method of Contact
+H_subsidy$cellular <- ifelse(H_subsidy$contact == "cellular", 1, 0)
+H_subsidy$landline <- ifelse(H_subsidy$contact == "telephone", 1, 0)
 ```
 
 ```{r stepwise}
