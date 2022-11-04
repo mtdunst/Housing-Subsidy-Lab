@@ -76,10 +76,9 @@ H_subsidy <- read.csv("https://github.com/urbanSpatial/Public-Policy-Analytics-L
   
 ```
 
-We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the *"tally"* function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overwhelmingly present in our data, it may skew our results and compromise the efficacy of the variable. **To remedy this, we will create 2 new pdays columns:**
+We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the *"tally"* function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overwhelmingly present in our data, it may skew our results and compromise the efficacy of the variable. **To remedy this, we will create a new pdays column:**
 
-**1. "days" a duplicate of the 'pdays' column where 999 values are omitted**
-**2. "week" a duplicate of the 'pdays' column where values are grouped into _"less than 1 week", "less than 2 weeks" "2 or more weeks", and "never contacted."_**
+**1. "week", a duplicate of the 'pdays' column where values are grouped into _"less than 1 week", "less than 2 weeks" "2 or more weeks", and "never contacted."_**
 
 ```{r clean_up, warning = FALSE}
 #Getting a general pdays count
@@ -91,10 +90,6 @@ days_tally <- H_subsidy %>%
 kable(days_tally, caption = "Count of 'pdays' Values") %>% 
   kable_classic_2("striped", "hover", "condensed", position = "float_right", full_width = F)
 
-#Creating the "days" column 
-H_subsidy$days <- ifelse(test = H_subsidy$pdays < 999,  # Keep original values
-                       yes = H_subsidy$pdays,
-                       no = NA)
 # Creating the "weeks" column 
 H_subsidy <-
   H_subsidy %>%
@@ -129,7 +124,7 @@ Make some plots of our variables - both continuous and categorical. Examine thes
 
 ```{r exploratory_continuous}
 H_subsidy %>%
-  dplyr::select(y,unemploy_rate, cons.price.idx, cons.conf.idx, inflation_rate, spent_on_repairs,days) %>%
+  dplyr::select(y,unemploy_rate, cons.price.idx, cons.conf.idx, inflation_rate, spent_on_repairs,weeks) %>%
   gather(Variable, value, -y) %>%
     ggplot(aes(y, value, fill=y)) + 
       geom_bar(position = "dodge", stat = "summary", fun = "mean") + 
@@ -229,13 +224,6 @@ H_subsidy$spring <- ifelse(H_subsidy$month == "mar"| H_subsidy$month == "apr"| H
 
 ```
 
-```{r stepwise}
-#stepping forward
-fullmod<-lm(y_numeric~ age + job_num + marital + education + taxLien + mortgage + taxbill_in_phl + contact + month + day_of_week + campaign + days + unemploy_rate + cons.price.idx + cons.conf.idx + inflation_rate + spent_on_repairs + weeks,data = H_subsidy)
-intonly<-lm(y_numeric ~1, data = H_subsidy) 
-step(intonly, scope=list(lower=intonly, upper=fullmod), direction="forward")
-
-```
 
 
 # Variable Transformations
@@ -280,11 +268,12 @@ Here we compared three possible selections of variables for our regression. The 
 ```{r second_model}
 H_subsidyModel_1 <- glm(y_numeric ~ .,
                   data=H_subsidyTrain %>% 
-                    dplyr::select(-y, -month, -day_of_week),
+                    dplyr::select(-y, -month, -day_of_week) %>% 
+                    mutate(poutcome = factor(poutcome, levels = c("failure","nonexistent","success"))),
                   family="binomial" (link="logit"))
 
 summary(H_subsidyModel_1)
-pR2(H_subsidyModel_1)
+sorpR2(H_subsidyModel_1)
 
 H_subsidyModel_2 <- glm(y_numeric ~ .,
                   data=H_subsidyTrain %>% 
@@ -330,8 +319,7 @@ These predictions are the estimated probabilities of clicking for these out-of-s
 Run the code below and explore using `glimpse(testProbs)` to see what these predictions look like.
 
 ```{r testProbs}
-
-testProbs <- data.frame(Outcome = as.factor(H_subsidyTest$y_Numeric),
+testProbs <- data.frame(Outcome = factor(H_subsidyTest$y_numeric),
                         Probs = predict(H_subsidyModel_1, H_subsidyTest, type= "response"))
 ```
 
