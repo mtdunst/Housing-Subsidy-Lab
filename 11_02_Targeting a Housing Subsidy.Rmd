@@ -94,11 +94,10 @@ kable(days_tally, caption = "Count of 'pdays' Values") %>%
 H_subsidy <-
   H_subsidy %>%
   mutate(weeks = case_when(
-    pdays <= 6 ~ "less than 1 week",
-    pdays <= 13 ~ "less than 2 weeks",
-    pdays >= 14 && (pdays < 999) ~ "2 or more weeks",
-     pdays == 999 ~ "never contacted",
-    pdays == NA ~ "never contacted"))
+    pdays %in% 0:6 ~ "less than 1 week",
+    pdays %in% 7:13 ~ "less than 2 weeks",
+    pdays %in% 14:998 ~ "2 or more weeks",
+     pdays == 999 ~ "never contacted"))
 
 # Converting "unknown" marital status to "single"
 H_subsidy <- 
