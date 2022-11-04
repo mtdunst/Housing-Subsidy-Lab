@@ -208,7 +208,7 @@ H_subsidy$haslien <- ifelse(H_subsidy$taxLien == "yes", 1, 0)
 
 #Mortgage
 H_subsidy$mortgage <- ifelse(H_subsidy$mortgage == "yes", 1, 0)
-H_subsidy$nomortgage <- ifelse(H_subsidy$taxLien == "no" | H_subsidy$taxLien == "unknown", 1, 0)
+H_subsidy$nomortgage <- ifelse(H_subsidy$mortgage == "no" | H_subsidy$taxLien == "unknown", 1, 0)
 
 #Philly Tax Bill
 H_subsidy$taxbillyes <- ifelse(H_subsidy$taxbill_in_phl == "yes", 1, 0)
@@ -220,7 +220,7 @@ H_subsidy$landline <- ifelse(H_subsidy$contact == "telephone", 1, 0)
 
 #Month
 H_subsidy$spring <- ifelse(H_subsidy$month == "mar"| H_subsidy$month == "apr"| H_subsidy$month == "may", 1, 0)
-H_subsidy$spring <- ifelse(H_subsidy$month == "mar"| H_subsidy$month == "apr"| H_subsidy$month == "may", 1, 0)
+
 
 ```
 
@@ -251,14 +251,20 @@ H_subsidyTest  <- H_subsidy[-trainIndex,]
 We run our model with the dependent variable `clickNumeric` and we use most of our variables in the regression. (See `dplyr::select`).
 
 ```{r run_model}
-
-H_subsidyModel <- glm(y_numeric ~ .,
+# Kitchen sink regression
+reg_kitchensink <- glm(y_numeric ~ .,family="binomial" (link="logit"),
                   data=H_subsidyTrain %>% 
-                    dplyr::select(-y, -month, -day_of_week),
-                  family="binomial" (link="logit"))
+                    dplyr::select(-y, -underemploy, -bluecollar, -whitecollar, -lessthanHS, -education, -highschool, -college, -professional, -single, -divorced, -married, -nolien, -haslien, -mortgage, -nomortgage, -taxbillyes, -notaxbill, -cellular, -landline, -spring, -weeks))
 
-summary(H_subsidyModel)
+summary(reg_kitchensink)
+pR2(reg_kitchensink)
 
+#Engineered regression
+reg_engine <- glm(formula = y_numeric ~ ., family = binomial(link = "logit"), 
+    data = H_subsidyTrain %>% dplyr::select(-job, -education, -marital, -taxLien, -mortgage, -taxbill_in_phl, -contact, -month, -pdays, -y))
+
+summary(reg_engine)
+pR2(reg_engine)
 ```
 
 ## Discussion 3
