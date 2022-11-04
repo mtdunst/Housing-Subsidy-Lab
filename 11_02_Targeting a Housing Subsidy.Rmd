@@ -220,6 +220,8 @@ H_subsidy$landline <- ifelse(H_subsidy$contact == "telephone", 1, 0)
 
 #Month
 H_subsidy$spring <- ifelse(H_subsidy$month == "mar"| H_subsidy$month == "apr"| H_subsidy$month == "may", 1, 0)
+H_subsidy$summer <- ifelse(H_subsidy$month == "jun"| H_subsidy$month == "jul"| H_subsidy$month == "aug", 1, 0)
+H_subsidy$fallwinter <- ifelse(H_subsidy$month == "sept"| H_subsidy$month == "oct"| H_subsidy$month == "nov"| H_subsidy$month == "dec", 1, 0)
 
 
 ```
@@ -254,7 +256,7 @@ We run our model with the dependent variable `clickNumeric` and we use most of o
 # Kitchen sink regression
 reg_kitchensink <- glm(y_numeric ~ .,family="binomial" (link="logit"),
                   data=H_subsidyTrain %>% 
-                    dplyr::select(-y, -underemploy, -bluecollar, -whitecollar, -lessthanHS, -education, -highschool, -college, -professional, -single, -divorced, -married, -nolien, -haslien, -mortgage, -nomortgage, -taxbillyes, -notaxbill, -cellular, -landline, -spring, -weeks))
+                    dplyr::select(-y, -underemploy, -bluecollar, -whitecollar, -lessthanHS, -education, -highschool, -college, -professional, -single, -divorced, -married, -nolien, -haslien, -mortgage, -nomortgage, -taxbillyes, -notaxbill, -cellular, -landline, -spring, -summer, -fallwinter, -weeks))
 
 summary(reg_kitchensink)
 pR2(reg_kitchensink)
