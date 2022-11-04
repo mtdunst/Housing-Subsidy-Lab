@@ -273,7 +273,7 @@ H_subsidyModel_1 <- glm(y_numeric ~ .,
                   family="binomial" (link="logit"))
 
 summary(H_subsidyModel_1)
-sorpR2(H_subsidyModel_1)
+pR2(H_subsidyModel_1)
 
 H_subsidyModel_2 <- glm(y_numeric ~ .,
                   data=H_subsidyTrain %>% 
@@ -399,10 +399,9 @@ Probably pretty, pretty good.
 ```{r cv}
 ctrl <- trainControl(method = "cv", number = 100, classProbs=TRUE, summaryFunction=twoClassSummary)
 
-cvFit <- train(click ~ .,
-                  data=advertising %>% 
-                    dplyr::select(-Country, -Timestamp, -clickNumeric, 
-                                  -userTimeFrame, -Fashion_FB_Group), 
+cvFit <- train(y_numeric ~ .,
+                  data=H_subsidy %>% 
+                    dplyr::select(-y, -month, -day_of_week), 
                 method="glm", family="binomial",
                 metric="ROC", trControl = ctrl)
 
