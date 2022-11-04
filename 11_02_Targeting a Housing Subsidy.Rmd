@@ -256,7 +256,7 @@ We run our model with the dependent variable `clickNumeric` and we use most of o
 # Kitchen sink regression
 reg_kitchensink <- glm(y_numeric ~ .,family="binomial" (link="logit"),
                   data=H_subsidyTrain %>% 
-                    dplyr::select(-y, -underemploy, -bluecollar, -whitecollar, -lessthanHS, -education, -highschool, -college, -professional, -single, -divorced, -married, -nolien, -haslien, -mortgage, -nomortgage, -taxbillyes, -notaxbill, -cellular, -landline, -spring, -summer, -fallwinter, -weeks))
+                    dplyr::select(-y, -underemploy, -bluecollar, -whitecollar, -lessthanHS, -education, -highschool, -college, -professional, -single, -divorced, -married, -nolien, -haslien, -mortgage, -nomortgage, -taxbillyes, -notaxbill, -cellular, -landline, -spring, -weeks, -summer, -fallwinter))
 
 summary(reg_kitchensink)
 pR2(reg_kitchensink)
@@ -274,33 +274,7 @@ pR2(reg_engine)
 Here we compared three possible selections of variables for our regression. The first consists of the variables that we predicted would be most predictive for who takes repair credits. The second narrowed the variables down to those with the largest coefficients to see if picking those and removing superfluous variables would be helpful. Finally, the third model narrowed the variables down to those with the smallest p-values to see if that filter had any value as well.
 
 ```{r second_model}
-H_subsidyModel_1 <- glm(y_numeric ~ .,
-                  data=H_subsidyTrain %>% 
-                    dplyr::select(-y, -month, -day_of_week) %>% 
-                    mutate(poutcome = factor(poutcome, levels = c("failure","nonexistent","success"))),
-                  family="binomial" (link="logit"))
-
-summary(H_subsidyModel_1)
-pR2(H_subsidyModel_1)
-
-H_subsidyModel_2 <- glm(y_numeric ~ .,
-                  data=H_subsidyTrain %>% 
-                    dplyr::select(y_numeric, job, contact, poutcome, unemploy_rate, cons.price.idx),
-                  family="binomial" (link="logit"))
-
-summary(H_subsidyModel_2)
-pR2(H_subsidyModel_2)
-
-H_subsidyModel_3 <- glm(y_numeric ~ .,
-                  data=H_subsidyTrain %>% 
-                    dplyr::select(y_numeric, contact, unemploy_rate, cons.price.idx, cons.conf.idx, campaign, poutcome),
-                  family="binomial" (link="logit"))
-
-summary(H_subsidyModel_3)
-pR2(H_subsidyModel_3)
-
-
-results <- data.frame(pR2(H_subsidyModel_1), pR2(H_subsidyModel_2), pR2(H_subsidyModel_3))
+results <- data.frame(pR2(reg_kitchensink), pR2(reg_engine))
 ```
 
 # Comparing models
@@ -309,9 +283,8 @@ Goodness of fit metrics were calculated for each model and are displayed below. 
 
 ``` {r fit metrics}
 results <- results %>% 
-        rename("Model 1 - initial" = "pR2.H_subsidyModel_1.",
-               "Model 2 - high coeff." = "pR2.H_subsidyModel_2.",
-               "Model 3 - low p-value" = "pR2.H_subsidyModel_3.")
+        rename("Model 1 - kitchen sink" = "pR2.reg_kitchensink.",
+               "Model 2 - engineered" = "pR2.reg_engine.")
 
 results %>%
   kbl(caption = "Goodness of Fit Metrics by Model") %>%
@@ -328,7 +301,7 @@ Run the code below and explore using `glimpse(testProbs)` to see what these pred
 
 ```{r testProbs}
 testProbs <- data.frame(Outcome = factor(H_subsidyTest$y_numeric),
-                        Probs = predict(H_subsidyModel_1, H_subsidyTest, type= "response"))
+                        Probs = predict(reg_engine, H_subsidyTest, type= "response"))
 ```
 
 ## Discussion 3
