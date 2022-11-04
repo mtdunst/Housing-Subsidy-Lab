@@ -450,15 +450,15 @@ cost_benefit_table <-
                 False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
        gather(Variable, Count) %>%
        mutate(Revenue =
-               ifelse(Variable == "True_Negative", Count * 0,
-               ifelse(Variable == "True_Positive",((.35 - .1) * Count),
-               ifelse(Variable == "False_Negative", (-0.35) * Count,
-               ifelse(Variable == "False_Positive", (-0.1) * Count, 0))))) %>%
+               ifelse(Variable == "True_Negative", Count * 12400,
+               ifelse(Variable == "True_Positive",((0) * Count),
+               ifelse(Variable == "False_Negative", (-2850) * Count,
+               ifelse(Variable == "False_Positive", (0) * Count, 0)))) %>%
     bind_cols(data.frame(Description = c(
               "We correctly predicted no click",
               "We correctly predicted a click",
               "We predicted no click and customer clicked",
-              "We predicted a click and customer did not click")))
+              "We predicted a click and customer did not click"))))
 
 kable(cost_benefit_table,
        caption = "Cost/Benefit Table") %>% kable_styling()
@@ -490,10 +490,10 @@ iterateThresholds <- function(data) {
                 False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
      gather(Variable, Count) %>%
      mutate(Revenue =
-               ifelse(Variable == "True_Negative", Count * 0,
-               ifelse(Variable == "True_Positive",((.35 - .1) * Count),
-               ifelse(Variable == "False_Negative", (-0.35) * Count,
-               ifelse(Variable == "False_Positive", (-0.1) * Count, 0)))),
+               ifelse(Variable == "True_Negative", Count * 12400,
+               ifelse(Variable == "True_Positive",((0) * Count),
+               ifelse(Variable == "False_Negative", (-2850) * Count,
+               ifelse(Variable == "False_Positive", (0) * Count, 0)))),
             Threshold = x)
   
   all_prediction <- rbind(all_prediction, this_prediction)
