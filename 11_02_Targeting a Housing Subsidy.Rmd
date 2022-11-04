@@ -356,6 +356,7 @@ caret::confusionMatrix(testProbs$predOutcome, testProbs$Outcome,
 
 ```
 
+
 ## Discussion 4
 
 **Describe what each of the following mean in the context of our advertising use case:**
@@ -450,10 +451,10 @@ cost_benefit_table <-
                 False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
        gather(Variable, Count) %>%
        mutate(Revenue =
-               ifelse(Variable == "True_Negative", Count * 12400,
-               ifelse(Variable == "True_Positive",((0) * Count),
-               ifelse(Variable == "False_Negative", (-2850) * Count,
-               ifelse(Variable == "False_Positive", (0) * Count, 0)))) %>%
+               ifelse(Variable == "True_Negative", Count * 0,
+               ifelse(Variable == "True_Positive",((12400) * Count),
+               ifelse(Variable == "False_Negative", (0) * Count,
+               ifelse(Variable == "False_Positive", (-2850) * Count, 0)))) %>%
     bind_cols(data.frame(Description = c(
               "We correctly predicted no click",
               "We correctly predicted a click",
@@ -462,6 +463,34 @@ cost_benefit_table <-
 
 kable(cost_benefit_table,
        caption = "Cost/Benefit Table") %>% kable_styling()
+
+cost_benefit_table_opt <-
+   testProbs_opt %>%
+      count(predOutcome, Outcome) %>%
+      summarize(True_Negative = sum(n[predOutcome==0 & Outcome==0]),
+                True_Positive = sum(n[predOutcome==1 & Outcome==1]),
+                False_Negative = sum(n[predOutcome==0 & Outcome==1]),
+                False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
+       gather(Variable, Count) %>%
+       mutate(Revenue =
+               ifelse(Variable == "True_Negative", Count * 0,
+               ifelse(Variable == "True_Positive",((12400) * Count),
+               ifelse(Variable == "False_Negative", (0) * Count,
+               ifelse(Variable == "False_Positive", (-2850) * Count, 0)))) %>%
+    bind_cols(data.frame(Description = c(
+              "We correctly predicted no click",
+              "We correctly predicted a click",
+              "We predicted no click and customer clicked",
+              "We predicted a click and customer did not click"))))
+
+knitr::kables(list(
+  kable(cost_benefit_table, caption = "50% Threshold Cost/Benefit"
+    ) %>% kable_classic(full_width = F),
+    kable(cost_benefit_table_opt, caption = "Optimal Threshold Cost/Benefit"
+    ) %>% kable_classic(full_width = F) 
+   
+  )
+) %>% kable_styling()
 ```
 
 # Optimize Thresholds
@@ -490,10 +519,10 @@ iterateThresholds <- function(data) {
                 False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
      gather(Variable, Count) %>%
      mutate(Revenue =
-               ifelse(Variable == "True_Negative", Count * 12400,
-               ifelse(Variable == "True_Positive",((0) * Count),
-               ifelse(Variable == "False_Negative", (-2850) * Count,
-               ifelse(Variable == "False_Positive", (0) * Count, 0)))),
+               ifelse(Variable == "True_Negative", Count * 0,
+               ifelse(Variable == "True_Positive",((12400) * Count),
+               ifelse(Variable == "False_Negative", (0) * Count,
+               ifelse(Variable == "False_Positive", (-2850) * Count, 0)))),
             Threshold = x)
   
   all_prediction <- rbind(all_prediction, this_prediction)
@@ -505,6 +534,14 @@ return(all_prediction)
 
 ```{r revenue_model}
 whichThreshold <- iterateThresholds(testProbs2)
+
+whichThreshold %>%
+  ggplot(.,aes(Threshold, Revenue, colour = Variable)) +
+  geom_point() +
+  scale_colour_manual(values = palette5[c(5, 1:3)]) +    
+  labs(title = "Revenue by Confusion Matrix Type and Threshold",
+       y = "Revenue") +
+  guides(colour=guide_legend(title = "Confusion Matrix"))
 
 whichThreshold_revenue <- 
 whichThreshold %>% 
@@ -519,6 +556,48 @@ whichThreshold %>%
 
 ```
 
+```{r count of credits by threshold}
+whichThreshold_count <-
+  whichThreshold %>%
+  mutate(Credit_Count = ifelse((Variable=="True_Positive" | Variable=="False_Positive"),Count,0))
+
+whichThreshold_revenue <-
+  whichThreshold_revenue %>%
+  mutate(
+    whichThreshold_count %>% 
+    group_by(Threshold) %>% 
+    summarize(Credits = sum(Credit_Count))
+  )
+
+  ggplot(whichThreshold_revenue)+
+  geom_line(aes(x = Threshold, y = Credits))+
+  geom_vline(xintercept =  pull(arrange(whichThreshold_revenue, -Revenue)[1,1]))+
+    labs(title = "Total Credits Used By Threshold For Test Sample",
+         subtitle = "Vertical Line Denotes Optimal Revenue Threshold")
+```
+
+
+## Comparing thresholds
+```{r thresholds}
+testProbs <- 
+  testProbs %>%
+  mutate(predOutcome  = as.factor(ifelse(testProbs$Probs > 0.5 , 1, 0)))
+```
+
+```{r thresholds}
+testProbs_opt <- 
+  testProbs %>%
+  mutate(predOutcome  = as.factor(ifelse(testProbs$Probs > pull(arrange(whichThreshold_revenue, -Revenue)[1,1]) , 1, 0)))
+```
+
+```{r confusion_matrix}
+caret::confusionMatrix(testProbs$predOutcome, testProbs$Outcome, 
+                       positive = "1")
+
+caret::confusionMatrix(testProbs_opt$predOutcome, testProbs_opt$Outcome, 
+                       positive = "1")
+
+```
 ## Post-Script - Interpreting Logit Coefficients
 
 **Explaining the values of the coefficients:**
