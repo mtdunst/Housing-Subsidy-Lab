@@ -399,9 +399,9 @@ Probably pretty, pretty good.
 ```{r cv}
 ctrl <- trainControl(method = "cv", number = 100, classProbs=TRUE, summaryFunction=twoClassSummary)
 
-cvFit <- train(y_numeric ~ .,
+cvFit <- train(y ~ .,
                   data=H_subsidy %>% 
-                    dplyr::select(-y, -month, -day_of_week), 
+                    dplyr::select(-y_numeric, -month, -day_of_week), 
                 method="glm", family="binomial",
                 metric="ROC", trControl = ctrl)
 
