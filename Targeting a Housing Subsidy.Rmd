@@ -79,7 +79,7 @@ H_subsidy <- read.csv("https://github.com/urbanSpatial/Public-Policy-Analytics-L
 We have a variable, _*"pdays"*_ indicating the # days after an individual was last contacted by a previous subsidy program. Using the *"tally"* function, we can see that the majority of individuals in our dataset have a pdays value of '999,' meaning they were not previously contacted. Because this 999 value is overwhelmingly present in our data, it may skew our results and compromise the efficacy of the variable. **To remedy this, we will create 2 new pdays columns:**
 
 **1. "days" a duplicate of the 'pdays' column where 999 values are omitted**
-**2. "week" a duplicate of the 'pdays' column where values are grouped into _"less than 1 week", "less than 2 weeks" "2 or more weeks", and "never contacted."_**
+**2. "week" a duplicate of the 'pdays' column where values are grouped into _"less than 1 week", "less than 2 weeks" "2 or more weeks", and "never contacted."_** test
 
 ```{r clean_up, warning = FALSE}
 #Getting a general pdays count
